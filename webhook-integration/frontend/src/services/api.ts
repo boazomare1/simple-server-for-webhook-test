@@ -191,6 +191,7 @@ class ApiService {
   // Webhook Testing
   async testWebhookReceiver(payload: WebhookTestPayload): Promise<any> {
     try {
+      // Use ngrok URL for webhook testing
       const response = await axios.post(`${this.webhookReceiverUrl}/webhook`, payload, {
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +207,9 @@ class ApiService {
 
   async getWebhookStats(): Promise<WebhookStats> {
     try {
-      const response: AxiosResponse<WebhookStats> = await axios.get(`${this.webhookReceiverUrl}/api/stats`, {
+      // Use local backend for stats
+      const localBackendUrl = config.LOCAL_BACKEND_URL || 'http://localhost:3001';
+      const response: AxiosResponse<WebhookStats> = await axios.get(`${localBackendUrl}/api/stats`, {
         timeout: 10000,
       });
       return response.data;

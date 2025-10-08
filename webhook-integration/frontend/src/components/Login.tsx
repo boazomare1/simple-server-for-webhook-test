@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './Login.css';
 
@@ -8,7 +7,6 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,9 +14,14 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      await api.login(email, password);
-      navigate('/dashboard');
+      console.log('Attempting login...');
+      const result = await api.login(email, password);
+      console.log('Login successful:', result);
+      console.log('Token stored:', localStorage.getItem('access_token'));
+      // Force a page reload to update authentication state
+      window.location.href = '/dashboard';
     } catch (err: any) {
+      console.error('Login failed:', err);
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);

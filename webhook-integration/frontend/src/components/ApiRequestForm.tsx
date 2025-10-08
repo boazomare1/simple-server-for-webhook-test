@@ -22,6 +22,8 @@ const ApiRequestForm: React.FC<ApiRequestFormProps> = ({ onSuccess }) => {
   const [error, setError] = useState('');
   const [logBookFile, setLogBookFile] = useState<File | null>(null);
   const [insuranceCertificateFile, setInsuranceCertificateFile] = useState<File | null>(null);
+  const [customInsuranceCompany, setCustomInsuranceCompany] = useState('');
+  const [useCustomInsurance, setUseCustomInsurance] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -48,15 +50,21 @@ const ApiRequestForm: React.FC<ApiRequestFormProps> = ({ onSuccess }) => {
     try {
       const callbackUrl = `${api.getWebhookReceiverUrl()}/webhook`;
       
+      // Use custom insurance company if selected
+      const finalFormData = {
+        ...formData,
+        insurance_company: useCustomInsurance ? customInsuranceCompany : formData.insurance_company,
+      };
+      
       if (requestType === 'direct') {
         await api.createDirectApiRequest({
-          ...formData,
+          ...finalFormData,
           callback_url: callbackUrl,
         });
         onSuccess('✅ Direct API Request created successfully! Check your webhook receiver dashboard for updates.');
       } else {
         await api.createBrokerApiRequest({
-          ...formData,
+          ...finalFormData,
           callback_url: callbackUrl,
           log_book: logBookFile || undefined,
           insurance_certificate: insuranceCertificateFile || undefined,
@@ -76,6 +84,8 @@ const ApiRequestForm: React.FC<ApiRequestFormProps> = ({ onSuccess }) => {
       });
       setLogBookFile(null);
       setInsuranceCertificateFile(null);
+      setCustomInsuranceCompany('');
+      setUseCustomInsurance(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create API request. Please try again.');
     } finally {
@@ -198,16 +208,56 @@ const ApiRequestForm: React.FC<ApiRequestFormProps> = ({ onSuccess }) => {
           
           <div className="form-group">
             <label htmlFor="insurance_company">Insurance Company *</label>
-            <select
-              id="insurance_company"
-              name="insurance_company"
-              value={formData.insurance_company}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="PACIS Insurance">PACIS Insurance</option>
-              <option value="LAMI Insurance">LAMI Insurance</option>
-            </select>
+            <div className="insurance-company-section">
+              <div className="insurance-options">
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    name="insurance_type"
+                    value="preset"
+                    checked={!useCustomInsurance}
+                    onChange={() => setUseCustomInsurance(false)}
+                  />
+                  <span>Select from list</span>
+                </label>
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    name="insurance_type"
+                    value="custom"
+                    checked={useCustomInsurance}
+                    onChange={() => setUseCustomInsurance(true)}
+                  />
+                  <span>Enter custom name</span>
+                </label>
+              </div>
+              
+              {!useCustomInsurance ? (
+                <select
+                  id="insurance_company"
+                  name="insurance_company"
+                  value={formData.insurance_company}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="PACIS Insurance">PACIS Insurance</option>
+                  <option value="LAMI Insurance">LAMI Insurance</option>
+                  <option value="Jubilee Insurance">Jubilee Insurance</option>
+                  <option value="CIC Insurance">CIC Insurance</option>
+                  <option value="APA Insurance">APA Insurance</option>
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  id="custom_insurance_company"
+                  name="custom_insurance_company"
+                  value={customInsuranceCompany}
+                  onChange={(e) => setCustomInsuranceCompany(e.target.value)}
+                  placeholder="Enter insurance company name"
+                  required
+                />
+              )}
+            </div>
           </div>
         </div>
 
