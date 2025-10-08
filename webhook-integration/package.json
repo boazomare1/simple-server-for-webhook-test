@@ -1,0 +1,31 @@
+{
+  "name": "webhook-integration",
+  "version": "1.0.0",
+  "description": "Complete webhook integration system with React dashboard and webhook receiver",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "cd backend && npm start",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "webhook",
+    "react",
+    "dashboard",
+    "integration",
+    "api"
+  ],
+  "author": "boazomare1",
+  "license": "MIT"
+}
